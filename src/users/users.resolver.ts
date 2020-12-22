@@ -1,4 +1,6 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthGuard } from 'src/auth/auth.guard';
 import {
   CreateAccountInput,
   CreateAccountOutput,
@@ -6,6 +8,7 @@ import {
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
+import { AuthUser } from './../auth/auth-user.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -40,5 +43,11 @@ export class UsersResolver {
         ok: false,
       };
     }
+  }
+
+  @Query((returns) => User)
+  @UseGuards(AuthGuard)
+  me(@AuthUser() authUser: User) {
+    return authUser;
   }
 }
